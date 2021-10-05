@@ -1,0 +1,75 @@
+@charset "UTF-8";
+
+body {
+  background: beige;
+}
+
+main {
+  max-width: 800px;
+  margin: auto;
+  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; 
+}
+
+section{
+  display: flex;
+  flex: 3;
+  flex-direction: row;
+  justify-content: center;
+}
+
+
+#kepkontener{
+  width: 90%;
+  margin-top: 10px;
+}
+
+img {
+  width: 100%;
+  border: 1px solid rgb(241, 213, 225);
+ 
+  border-radius: 4px;
+}
+
+#bal, #jobb{
+  margin: 10px 10px 10px;
+}
+
+#bal:hover, #jobb:hover{
+  font-weight: bold;
+  text-shadow: 1px 2px 2px deeppink;
+  color: hotpink;
+  cursor: grabbing;
+}
+
+h2{
+  background-color: mistyrose;
+  box-shadow: 1px 2px 2px lightcoral;
+}
+
+article {
+  
+  background-color: lightpink;
+}
+
+main, article, table, td{  
+  border: 1px solid rgb(241, 213, 225);
+  padding: 10px;
+  border-radius: 4px;
+}
+
+table{
+  width: 100%;
+  text-align: left; 
+  
+}
+
+th{
+  text-align: center;
+  background-color: mistyrose;
+  border: 1px solid thistle;
+  box-shadow: 1px 1px 2px salmon;
+}
+
+header h1{
+  text-align: center;
+}
