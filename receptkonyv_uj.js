@@ -1,7 +1,8 @@
 $(function () {
   const receptTomb = [];
+  let novekvo = true;
 
-  adatbeolvas("etelek.json", receptTomb, adatbetolt);
+  adatbeolvas("etelek.json", receptTomb, adatBetolt);
 
   function adatbeolvas(fajlnev, tomb, myCallback) {
     $.ajax({
@@ -12,7 +13,7 @@ $(function () {
           tomb.push(element); //pakolja be a tombbe a beolvasott json fileban levo lista elemeit
         });
         //console.log(tomb.length);
-        //itt teljes a tomb --> itt kell meghivni az adatbetoltest v.egyeb fuggvenyt
+        //itt teljes a tomb --> itt kell meghivni az adatBetoltest v.egyeb fuggvenyt
         myCallback(tomb);
       },
     });
@@ -20,11 +21,21 @@ $(function () {
     //itt mar ures a tomb
   }
 
-  function adatbetolt() {
-    let receptTablazat = "<div id='recepttablazat'><table>";
+  function adatBetolt() {
+    
+    tablazatBetolt();    
+    sorKiemel();
+    navigacio(); 
+    receptMegjelenit();
+  }
+
+  function tablazatBetolt() {
+    $("article").empty();
+    const cim = "<h2>A receptjeink</h2>";
+    let receptTablazat = cim + "<div id='recepttablazat'><table>";
     //fejléc kialakitása
     receptTablazat +=
-      "<tr><th>Név</th><th>Elkészítési idő</th><th>Kép</th><th>Leírás</th><th>Hozzávalók</th></tr>";
+      "<tr id='fejlec'><th>Név</th><th>Elkészítési idő</th><th>Kép</th><th>Leírás</th><th>Hozzávalók</th></tr>";
     var szamlalo = 0;
     receptTomb.forEach((element) => {
       //adatok kigyujtese, rendszerezese
@@ -51,25 +62,78 @@ $(function () {
       receptTablazat += "</ul></td></tr>";
       szamlalo++;
     });
-
     receptTablazat += "</table></div>";
-    console.log(receptTablazat);
+    //console.log(receptTablazat);
     $("article").append(receptTablazat);
 
-    //kép és adatok megjelenítése a képkonténerben
+    rendez();  
+    
+  }
 
-    $("table tr").on("click", function () {
-     
-      index = $(this).attr("id");
-      kepBetolt(index);
-    });
+  function rendez(){
+    
+$("table th").on("click", function () {
+  let kulcs;      
+  if ($(this).html() === "Név") { //alfabetikus rendezés --> Név mezőre kattintva
+    kulcs = "nev";
+    if (novekvo) {
+      receptTomb.sort(
+        function (a, b) {  //logikai függvényt számmá alakítom --> 0-t vagy 1-et kapok; úgy lesz belőle - vagy + szám, ha kivonok belőle 0,5-öt                                                            
+            return Number(a[kulcs] > b[kulcs]) - 0.5; //poz. esetén lesz csere, neg. esetén nem
+        }
+);
+    } else {
+      receptTomb.sort(
+        function (a, b) {                
+            return Number(a[kulcs] < b[kulcs]) - 0.5;
+        }
+);
 
+    }
+  } else if ($(this).html() === "Elkészítési idő") { //numerikus rendezés --> Elkészítési idő mezőre kattintva
+    kulcs = "elkIdo";        
+    if (novekvo) {
+      receptTomb.sort(              //növekvő sorrend;    
+        function (a, b) {           //a és b objektumokat hasonlítjuk össze                            
+            return a[kulcs].substring(0,a[kulcs].length-5) - b[kulcs].substring(0,b[kulcs].length-5); 
+        });
+    } else {
+      receptTomb.sort(              //csökkenő sorrend; 
+        function (a, b) {
+           //console.log(a[kulcs]);
+            return b[kulcs].substring(0,b[kulcs].length-5) - a[kulcs].substring(0,a[kulcs].length-5);
+        });
+    }
+  }
+  novekvo = !novekvo;     //váltson az ellenkező irányba
+
+
+
+  //TERV:
+   //navigáció finomítása és pontosítása a rendezés utáni állapotokra:
+   //ha nem üres a képkonténer, lekérem a rendezésre való kattintást megelőzően a képkonténerben megjelenített étel nevét a konténer h2 tagéből 
+   //ciklussal megkeresem, a rendezett tömbben hanyadik indexet kapta meg u.ez az étel
+   //majd: kepbetolt(index) --> u.azt az elemet tölti be, viszont már az új indexszel,     
+   //tehát látványban nem lesz különbség, viszont a navigáció során a rendezett tömbben előtte/utána található elemre tudunk ugrani
+  
+  
+  tablazatBetolt();
+  sorKiemel();      
+  receptMegjelenit();
+});
+
+
+  }
+
+  function navigacio() {
+    //jobbra-balra léptetés
     $("#jobb").on("click", function () {
       let kepIndex = $("#kepkontener img").attr("id"); //eltárolom az aktuális kép id-ját
-      if (typeof(kepIndex)==='undefined'){
-        kepIndex = -1;   //hogy 0-re ugorjon a betöltésnél
+      console.log("akt. kepindex:" + kepIndex);
+      if (typeof kepIndex === "undefined") {
+        kepIndex = -1; //hogy 0-re ugorjon a betöltésnél
       }
-      if ( kepIndex < 2) {
+      if (kepIndex < 2) {
         kepBetolt(parseInt(kepIndex) + 1); //??? érdekes: csak itt jelzett hibát amiatt, mert kepIndexet stringként értelmezte...
       } else {
         kepBetolt(kepIndex);
@@ -78,8 +142,9 @@ $(function () {
 
     $("#bal").on("click", function () {
       let kepIndex = $("#kepkontener img").attr("id"); //eltárolom az aktuális kép id-ját
-      if (typeof(kepIndex)==='undefined'){
-        kepIndex=3;                                   //hogy 2-re álljon vissza a betöltésnél
+      console.log("akt. kepindex:" + kepIndex);
+      if (typeof kepIndex === "undefined") {
+        kepIndex = 3; //hogy 2-re álljon vissza a betöltésnél
       }
       if (kepIndex > 0) {
         kepBetolt(kepIndex - 1);
@@ -89,11 +154,41 @@ $(function () {
     });
   }
 
+  function sorKiemel() {
+    //egy adott sor fölé húzva a kurzort háttérszínváltás lesz
+    $("table tr").on("mouseenter", function () {
+      $(this).addClass("sorkiemel");
+    });
+
+    $("table tr").on("mouseleave", function () {
+      $(this).removeClass("sorkiemel");
+    });
+  }
+
+  function receptMegjelenit() {
+    //a kattintással kiválasztott sorhoz tartozó kép és receptadatok megjelenítése a képkonténerben ill. az alatt
+    $("table tr").on("click", function () {
+      //a th-t is tr-nek érzékeli, tehát vizsgálnunk kell azt az esetet, amikor a fejlécre kattintunk
+      index = $(this).attr("id");
+      if ($(this).attr("id") != "fejlec") {
+        //ha nem a fejlécre kattintottunk, töltse be a képet
+        kepBetolt(index);
+      }
+    });
+  }
+
   function kepBetolt(index) {
     $("#kepkontener").empty();
     console.log(index);
     //console.log(receptTomb[index].kep);
-    let tartalom = "<img src='"+receptTomb[index].kep+"' alt='kep' id='"+index+"'><h2>" +receptTomb[index].nev+"</h2><h3>Hozzávalók</h3><ul>"; 
+    let tartalom =
+      "<img src='" +
+      receptTomb[index].kep +
+      "' alt='kep' id='" +
+      index +
+      "'><h2>" +
+      receptTomb[index].nev +
+      "</h2><h3>Hozzávalók</h3><ul>";
     //a képnek is legyen a tömbbeli indexe az id-ja
     for (let item in receptTomb[index].hozzavalok) {
       tartalom +=
