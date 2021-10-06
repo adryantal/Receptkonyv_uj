@@ -130,7 +130,7 @@ $("table th").on("click", function () {
     $("#jobb").on("click", function () {
       let kepIndex = $("#kepkontener img").attr("id"); //eltárolom az aktuális kép id-ját
       console.log("akt. kepindex:" + kepIndex);
-      if (typeof kepIndex === "undefined") {
+      if (kepIndex === null) {
         kepIndex = -1; //hogy 0-re ugorjon a betöltésnél
       }
       if (kepIndex < 2) {
