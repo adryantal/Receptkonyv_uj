@@ -22,10 +22,9 @@ $(function () {
   }
 
   function adatBetolt() {
-    
-    tablazatBetolt();    
+    tablazatBetolt();
     sorKiemel();
-    navigacio(); 
+    navigacio();
     receptMegjelenit();
   }
 
@@ -66,63 +65,57 @@ $(function () {
     //console.log(receptTablazat);
     $("article").append(receptTablazat);
 
-    rendez();  
-    
+    rendez();
   }
 
-  function rendez(){
-    
-$("table th").on("click", function () {
-  let kulcs;      
-  if ($(this).html() === "Név") { //alfabetikus rendezés --> Név mezőre kattintva
-    kulcs = "nev";
-    if (novekvo) {
-      receptTomb.sort(
-        function (a, b) {  //logikai függvényt számmá alakítom --> 0-t vagy 1-et kapok; úgy lesz belőle - vagy + szám, ha kivonok belőle 0,5-öt                                                            
+  function rendez() {
+    $("#kepkontener").empty();
+    $("table th").on("click", function () {
+      let kulcs;
+      if ($(this).html() === "Név") {
+        //alfabetikus rendezés --> Név mezőre kattintva
+        kulcs = "nev";
+        if (novekvo) {
+          receptTomb.sort(function (a, b) {
+            //logikai függvényt számmá alakítom --> 0-t vagy 1-et kapok; úgy lesz belőle - vagy + szám, ha kivonok belőle 0,5-öt
             return Number(a[kulcs] > b[kulcs]) - 0.5; //poz. esetén lesz csere, neg. esetén nem
-        }
-);
-    } else {
-      receptTomb.sort(
-        function (a, b) {                
+          });
+        } else {
+          receptTomb.sort(function (a, b) {
             return Number(a[kulcs] < b[kulcs]) - 0.5;
+          });
         }
-);
+      } else if ($(this).html() === "Elkészítési idő") {
+        //numerikus rendezés --> Elkészítési idő mezőre kattintva
+        kulcs = "elkIdo";
+        if (novekvo) {
+          receptTomb.sort(
+            //növekvő sorrend;
+            function (a, b) {
+              //a és b objektumokat hasonlítjuk össze
+              return (
+                a[kulcs].substring(0, a[kulcs].length - 5) -
+                b[kulcs].substring(0, b[kulcs].length - 5)
+              );
+            });
+        } else {
+          receptTomb.sort(
+            //csökkenő sorrend;
+            function (a, b) {
+              //console.log(a[kulcs]);
+              return (
+                b[kulcs].substring(0, b[kulcs].length - 5) -
+                a[kulcs].substring(0, a[kulcs].length - 5)
+              );
+            });
+        }
+      }
+      novekvo = !novekvo; //váltson az ellenkező irányba     
 
-    }
-  } else if ($(this).html() === "Elkészítési idő") { //numerikus rendezés --> Elkészítési idő mezőre kattintva
-    kulcs = "elkIdo";        
-    if (novekvo) {
-      receptTomb.sort(              //növekvő sorrend;    
-        function (a, b) {           //a és b objektumokat hasonlítjuk össze                            
-            return a[kulcs].substring(0,a[kulcs].length-5) - b[kulcs].substring(0,b[kulcs].length-5); 
-        });
-    } else {
-      receptTomb.sort(              //csökkenő sorrend; 
-        function (a, b) {
-           //console.log(a[kulcs]);
-            return b[kulcs].substring(0,b[kulcs].length-5) - a[kulcs].substring(0,a[kulcs].length-5);
-        });
-    }
-  }
-  novekvo = !novekvo;     //váltson az ellenkező irányba
-
-
-
-  //TERV:
-   //navigáció finomítása és pontosítása a rendezés utáni állapotokra:
-   //ha nem üres a képkonténer, lekérem a rendezésre való kattintást megelőzően a képkonténerben megjelenített étel nevét a konténer h2 tagéből 
-   //ciklussal megkeresem, a rendezett tömbben hanyadik indexet kapta meg u.ez az étel
-   //majd: kepbetolt(index) --> u.azt az elemet tölti be, viszont már az új indexszel,     
-   //tehát látványban nem lesz különbség, viszont a navigáció során a rendezett tömbben előtte/utána található elemre tudunk ugrani
-  
-  
-  tablazatBetolt();
-  sorKiemel();      
-  receptMegjelenit();
-});
-
-
+      tablazatBetolt();
+      sorKiemel();
+      receptMegjelenit();
+    });
   }
 
   function navigacio() {
@@ -130,7 +123,7 @@ $("table th").on("click", function () {
     $("#jobb").on("click", function () {
       let kepIndex = $("#kepkontener img").attr("id"); //eltárolom az aktuális kép id-ját
       console.log("akt. kepindex:" + kepIndex);
-      if (kepIndex === null) {
+      if (kepIndex === undefined) {
         kepIndex = -1; //hogy 0-re ugorjon a betöltésnél
       }
       if (kepIndex < 2) {
